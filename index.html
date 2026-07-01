@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Agricultores y Consejos</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-dark: #1b5e20;
+            --secondary: #81c784;
+            --danger: #c62828;
+            --warning: #ffb300;
+            --light: #f1f8e9;
+            --dark: #37474f;
+            --admin-color: #512da8;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fafafa;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1350px;
+            margin: 0 auto;
+        }
+
+        /* DISEÑO PANTALLA DE ACCESO OBLIGATORIO */
+        .gateway-container {
+            max-width: 400px;
+            margin: 80px auto;
+            text-align: center;
+        }
+
+        .gateway-logo {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        .header-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .header-area {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .header-title h1 {
+            margin: 0;
+            color: var(--primary-dark);
+            font-size: 24px;
+        }
+
+        .auth-panel {
+            background: #ede7f6;
+            border: 1px solid var(--primary);
+            padding: 10px 15px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 992px) {
+            .grid {
+                grid-template-columns: 350px 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 5px rgba(46, 125, 50, 0.3);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button:hover { background-color: var(--primary-dark); }
+        button:disabled { background-color: #cccccc !important; cursor: not-allowed; opacity: 0.6; }
+
+        button.btn-danger { background-color: var(--danger); }
+        button.btn-danger:hover { background-color: #b71c1c; }
+        button.btn-warning { background-color: #ef6c00; color: white; }
+        button.btn-warning:hover { background-color: #e65100; }
+        button.btn-secondary { background-color: #78909c; }
+        button.btn-secondary:hover { background-color: #607d8b; }
+        button.btn-admin { background-color: var(--admin-color); }
+        button.btn-admin:hover { background-color: #311b92; }
+        
+        .btn-history { background-color: #37474f; font-weight: bold; }
+        .btn-history:hover { background-color: #212121; }
+
+        .search-box {
+            background: var(--light);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        th.col-tip, td.col-tip {
+            width: 40%;
+            min-width: 280px;
+        }
+
+        th.col-rating, td.col-rating {
+            width: 20%;
+            min-width: 160px;
+        }
+
+        .tip-text {
+            font-style: italic;
+            color: #333;
+            word-wrap: break-word;
+            white-space: normal;
+            line-height: 1.5;
+        }
+
+        .rating-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .star-rating {
+            display: inline-flex;
+            gap: 2px;
+        }
+
+        .star {
+            cursor: pointer;
+            font-size: 22px;
+            color: #ccc;
+            transition: color 0.1s;
+        }
+        .star:hover, .star:hover ~ .star { color: #ffca28; }
+        .star.active { color: var(--warning); }
+        
+        .star-rating.already-voted .star {
+            cursor: not-allowed;
+        }
+        .star-rating.already-voted .star:hover, 
+        .star-rating.already-voted .star:hover ~ .star { 
+            color: inherit;
+        }
+
+        .rating-stats {
+            font-size: 11px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .admin-email-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #eee;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            gap: 5px;
+            margin: 2px;
+        }
+        .admin-email-badge button {
+            padding: 0;
+            background: none;
+            color: var(--danger);
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none; 
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-box {
+            background: white;
+            width: 90%;
+            max-width: 750px;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #eee;
+            border: none;
+            font-size: 16px;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        .modal-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ffcdd2;
+            padding-bottom: 10px;
+            margin-right: 30px;
+        }
+
+        .history-list {
+            max-height: 350px;
+            overflow-y: auto;
+            background: #fdfdfd;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px dashed #b2dfdb;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        .history-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .timestamp { color: var(--danger); font-weight: bold; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<!-- PANTALLA 1: PORTAL DE INICIO DE SESIÓN OBLIGATORIO -->
+<div id="gateway-screen" class="gateway-container">
+    <div class="gateway-logo">🌱</div>
+    <h2 style="color: var(--primary-dark); margin-bottom: 5px;">Agrocultura Unida</h2>
+    <p style="color: #666; font-size: 14px; margin-top: 0; margin-bottom: 25px;">Ingresa a tu cuenta para ver e interactuar con el panel agrícola.</p>
+    
+    <div class="card" style="text-align: left;">
+        <div class="form-group">
+            <label for="gate-email">Correo Electrónico:</label>
+            <input type="email" id="gate-email" placeholder="ejemplo@correo.com">
+        </div>
+        <div class="form-group">
+            <label for="gate-password">Contraseña:</label>
+            <input type="password" id="gate-password" placeholder="Mínimo 6 caracteres">
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+            <button id="btn-gate-login" style="font-weight: bold; padding: 12px;">🔑 Entrar al Panel</button>
+            <button id="btn-gate-register" class="btn-secondary" style="font-size: 13px; padding: 10px;">📝 Registrarme como Nuevo Agricultor</button>
+        </div>
+    </div>
+</div>
+
+<!-- PANTALLA 2: APLICACIÓN PRINCIPAL (OCULTA POR DEFECTO) -->
+<div id="app-screen" class="container" style="display: none;">
+    
+    <div class="header-area">
+        <div class="header-title">
+            <h1>🌱 Panel de Consejos Agrícolas</h1>
+        </div>
+        
+        <div class="auth-panel">
+            <div>
+                <span style="font-size: 14px;">Sesión activa: <strong style="color:var(--primary-dark)" id="active-user-span"></strong></span>
+                <span id="badge-admin-role" style="display:none; background: var(--admin-color); color:white; font-size:11px; padding:2px 6px; border-radius:4px; margin-left:5px;">ADMINISTRADOR</span>
+            </div>
+            <div style="display:flex; gap: 8px; margin-left: auto;">
+                <button class="btn-history" id="btn-open-trash" style="padding: 6px 12px; font-size: 13px;">📋 Papelera</button>
+                <button class="btn-danger" id="btn-logout" style="padding: 6px 12px; font-size: 13px;">🔒 Salir</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div>
+            <!-- Formulario de Registro de Tips -->
+            <div class="card">
+                <h2 id="form-title" style="border:none; margin-top:0; font-size: 18px;">Registrar Nuevo Tip</h2>
+                <form id="farmer-form">
+                    <input type="hidden" id="farmer-id">
+                    
+                    <div class="form-group">
+                        <label for="name">Nombre del Agricultor:</label>
+                        <input type="text" id="name" required placeholder="Carlos Mendoza">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Teléfono de Contacto:</label>
+                        <input type="tel" id="phone" required placeholder="+34 611 222 333">
+                    </div>
+
+                    <!-- El campo de correo manual fue eliminado de aquí. Se asocia automáticamente -->
+
+                    <div class="form-group">
+                        <label for="tip">Consejo (Tip):</label>
+                        <textarea id="tip" rows="4" required placeholder="Añadir abono orgánico..."></textarea>
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" id="btn-submit">Guardar Tip</button>
+                        <button type="button" id="btn-cancel" class="btn-secondary" style="display: none;">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- GESTIÓN DE ACCESOS ADMINISTRATIVOS -->
+            <div id="admin-access-card" class="card" style="display: none; border-top: 4px solid var(--admin-color);">
+                <h3 style="margin-top:0; color: var(--admin-color);">🔑 Dar Acceso Administrativo</h3>
+                <p style="font-size: 12px; color: #555;">Los correos listados aquí podrán eliminar cualquier tip y vaciar la papelera.</p>
+                <div class="form-group" style="display: flex; gap: 5px;">
+                    <input type="email" id="new-admin-email" placeholder="ejemplo@campo.com" style="padding: 6px;">
+                    <button class="btn-admin" id="btn-add-admin" style="font-size: 12px; padding:6px 10px;">Autorizar</button>
+                </div>
+                <div id="admin-emails-list" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+
+        <div>
+            <div class="card search-box">
+                <label for="search">🔍 Buscador Inteligente:</label>
+                <input type="text" id="search" placeholder="Filtrar por nombres, contactos, tips...">
+            </div>
+
+            <div class="card">
+                <h2 style="border:none; margin-top:0; font-size: 18px;">📋 Base General de Tips</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Agricultor</th>
+                                <th>Contacto</th>
+                                <th class="col-tip">Consejo (Tip)</th>
+                                <th class="col-rating">Calificación / Promedio</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="farmers-table-body">
+                            <tr><td colspan="5" style="text-align:center; color:#888;">Cargando datos desde Firebase...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="history-modal">
+    <div class="modal-box">
+        <button class="modal-close" id="btn-close-trash-x">✕</button>
+        
+        <div class="modal-header-flex">
+            <h2 style="color: var(--danger); margin:0; font-size: 20px;">🗑️ Papelera de Respaldos</h2>
+            <button class="btn-danger" id="btn-empty-trash" style="padding: 6px 12px; font-size: 13px;">⚠️ Vaciar Papelera</button>
+        </div>
+        
+        <p style="font-size: 13px; color: #555; margin-top: 10px;">Resguardo exclusivo de consejos eliminados.</p>
+        
+        <div class="history-list" id="history-log"></div>
+    </div>
+</div>
+
+<!-- LÓGICA DE FIREBASE CON AUTENTICACIÓN -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { 
+        getFirestore, collection, addDoc, updateDoc, doc, deleteDoc, onSnapshot, arrayUnion, writeBatch, query, getDocs
+    } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+    import { 
+        getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyD5Qd5sEkHu4CFqx0B5piLzMx_c1FQKLqo",
+        authDomain: "agrocultura-unida.firebaseapp.com",
+        projectId: "agrocultura-unida",
+        storageBucket: "agrocultura-unida.firebasestorage.app",
+        messagingSenderId: "258160895973",
+        appId: "1:258160895973:web:566931edaa615f8cd9710c",
+        measurementId: "G-VKPTBTTBQP"
+    };
+
+    // Inicializaciones
+    const app = initializeApp(firebaseConfig);
+    const dbFs = getFirestore(app);
+    const auth = getAuth(app);
+
+    const farmersCollection = collection(dbFs, "farmers");
+    const trashCollection = collection(dbFs, "trash");
+
+    const ROOT_ADMIN = "dsantiago.peralta11@gmail.com";
+    let dbGlobalCache = [];
+    let trashGlobalCache = [];
+    let currentUser = null; 
+    let isCurrentAdmin = false;
+
+    let authorizedEmails = JSON.parse(localStorage.getItem('admin_emails_list')) || [ROOT_ADMIN];
+    if (!authorizedEmails.includes(ROOT_ADMIN)) {
+        authorizedEmails.push(ROOT_ADMIN);
+        localStorage.setItem('admin_emails_list', JSON.stringify(authorizedEmails));
+    }
+
+    const form = document.getElementById('farmer-form');
+    const btnSubmit = document.getElementById('btn-submit');
+    const btnCancel = document.getElementById('btn-cancel');
+    const formTitle = document.getElementById('form-title');
+    const searchInput = document.getElementById('search');
+
+    // 🔐 OBSERVADOR DE ESTADO DE AUTENTICACIÓN
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            isCurrentAdmin = authorizedEmails.includes(user.email.toLowerCase());
+            
+            document.getElementById('gateway-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+            
+            document.getElementById('active-user-span').textContent = user.email;
+            
+            if (isCurrentAdmin) {
+                document.getElementById('badge-admin-role').style.display = 'inline-block';
+                document.getElementById('admin-access-card').style.display = 'block';
+                document.getElementById('btn-empty-trash').removeAttribute('disabled');
+                renderAdminEmailsList();
+            } else {
+                document.getElementById('badge-admin-role').style.display = 'none';
+                document.getElementById('admin-access-card').style.display = 'none';
+                document.getElementById('btn-empty-trash').setAttribute('disabled', 'true');
+            }
+
+            activarEscuchasTiempoReal();
+        } else {
+            currentUser = null;
+            isCurrentAdmin = false;
+            document.getElementById('app-screen').style.display = 'none';
+            document.getElementById('gateway-screen').style.display = 'block';
+            limpiarCamposAcceso();
+        }
+    });
+
+    // FUNCIONES DE REGISTRO E INICIO DE SESIÓN
+    async function ejecutarRegistro() {
+        const email = document.getElementById('gate-email').value.trim();
+        const password = document.getElementById('gate-password').value.trim();
+        if(!email || !password) { alert("Completa los campos."); return; }
+
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            alert("🌱 ¡Cuenta de agricultor creada exitosamente!");
+        } catch (error) {
+            alert("Error al registrar: " + traducirErrorAuth(error.code));
+        }
+    }
+
+    async function ejecutarLogin() {
+        const email = document.getElementById('gate-email').value.trim();
+        const password = document.getElementById('gate-password').value.trim();
+        if(!email || !password) { alert("Ingresa tus credenciales."); return; }
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            alert("Error de acceso: " + traducirErrorAuth(error.code));
+        }
+    }
+
+    async function ejecutarLogout() {
+        if(confirm("¿Deseas cerrar tu sesión?")) {
+            await signOut(auth);
+        }
+    }
+
+    let unsubFarmers = null;
+    let unsubTrash = null;
+
+    function activarEscuchasTiempoReal() {
+        if(unsubFarmers) unsubFarmers();
+        if(unsubTrash) unsubTrash();
+
+        unsubFarmers = onSnapshot(farmersCollection, (snapshot) => {
+            dbGlobalCache = [];
+            snapshot.forEach((doc) => {
+                dbGlobalCache.push({ idFs: doc.id, ...doc.data() });
+            });
+            renderAll();
+        });
+
+        unsubTrash = onSnapshot(trashCollection, (snapshot) => {
+            trashGlobalCache = [];
+            snapshot.forEach((doc) => {
+                trashGlobalCache.push({ idFs: doc.id, ...doc.data() });
+            });
+            renderHistory();
+        });
+    }
+
+    // CREAR / EDITAR EN FIRESTORE
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        if(!currentUser) return;
+
+        const idFs = document.getElementById('farmer-id').value;
+        const name = document.getElementById('name').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const tip = document.getElementById('tip').value.trim();
+
+        try {
+            if (idFs) {
+                const targetFarmer = dbGlobalCache.find(f => f.idFs === idFs);
+                if (!isCurrentAdmin && targetFarmer && targetFarmer.authorId !== currentUser.uid) {
+                    alert("❌ Acción denegada: No eres el autor de este tip.");
+                    resetForm();
+                    return;
+                }
+                const docRef = doc(dbFs, "farmers", idFs);
+                // Al editar mantenemos el correo de autor original
+                await updateDoc(docRef, { name, phone, tip });
+            } else {
+                // El campo email público se llena automáticamente con el correo de inicio de sesión (currentUser.email)
+                await addDoc(farmersCollection, {
+                    name, 
+                    phone, 
+                    email: currentUser.email, 
+                    tip,
+                    ratings: [],
+                    authorId: currentUser.uid, 
+                    authorEmail: currentUser.email,
+                    createdAt: new Date().toISOString()
+                });
+            }
+            resetForm();
+        } catch (error) {
+            console.error(error);
+            alert("Error de red al guardar.");
+        }
+    });
+
+    // SISTEMA DE CALIFICACIONES LIMPIO
+    async function rateFarmer(idFs, ratingValue) {
+        if (!currentUser) return;
+        const farmer = dbGlobalCache.find(f => f.idFs === idFs);
+        if (!farmer) return;
+
+        const hasVoted = farmer.ratings && farmer.ratings.some(v => v.voter === currentUser.uid);
+
+        if (hasVoted) {
+            alert("❌ Ya has calificado este consejo agrícola.");
+            return;
+        }
+
+        try {
+            const docRef = doc(dbFs, "farmers", idFs);
+            await updateDoc(docRef, {
+                ratings: arrayUnion({ score: ratingValue, voter: currentUser.uid })
+            });
+            alert("¡Calificación guardada en la nube!");
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    // RENDERIZADOR GENERAL
+    function renderAll() {
+        if(!currentUser) return;
+        const searchTerm = searchInput.value.toLowerCase();
+        const tbody = document.getElementById('farmers-table-body');
+        tbody.innerHTML = '';
+
+        const filteredDb = dbGlobalCache.filter(farmer => {
+            // Se incluye el email guardado en la búsqueda por si acaso
+            const emailText = farmer.email ? farmer.email.toLowerCase() : '';
+            return farmer.name.toLowerCase().includes(searchTerm) ||
+                   farmer.phone.toLowerCase().includes(searchTerm) ||
+                   emailText.includes(searchTerm) ||
+                   farmer.tip.toLowerCase().includes(searchTerm);
+        });
+
+        if (filteredDb.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">No hay registros disponibles.</td></tr>`;
+            return;
+        }
+
+        filteredDb.forEach(farmer => {
+            const tr = document.createElement('tr');
+            const stats = calculateRatingStats(farmer);
+            const roundedAverage = Math.round(stats.average);
+
+            const hasVoted = farmer.ratings && farmer.ratings.some(v => v.voter === currentUser.uid);
+            const votedClass = hasVoted ? 'already-voted' : '';
+            const votedTitle = hasVoted ? 'Ya has votado este tip' : 'Califica este consejo';
+
+            const ratingContainer = document.createElement('div');
+            ratingContainer.className = 'rating-container';
+
+            const starWrapper = document.createElement('div');
+            starWrapper.className = `star-rating ${votedClass}`;
+            starWrapper.setAttribute('title', votedTitle);
+
+            for (let i = 1; i <= 5; i++) {
+                const spanStar = document.createElement('span');
+                spanStar.className = `star ${i <= roundedAverage ? 'active' : ''}`;
+                spanStar.innerHTML = '&#9733;';
+                if (!hasVoted) {
+                    spanStar.onclick = () => rateFarmer(farmer.idFs, i);
+                }
+                starWrapper.appendChild(spanStar);
+            }
+            ratingContainer.appendChild(starWrapper);
+            
+            const statsSpan = document.createElement('span');
+            statsSpan.className = 'rating-stats';
+            statsSpan.innerHTML = stats.count > 0 ? `📈 <strong>${stats.average}</strong> de 5 <span style='color:#888;'>(${stats.count} v.)</span>` : `<span style='color:#aaa; font-style:italic;'>Sin votos</span>`;
+            ratingContainer.appendChild(statsSpan);
+
+            // Muestra en la columna de contacto el correo de la cuenta vinculada automáticamente
+            tr.innerHTML = `
+                <td><strong>${escapeHTML(farmer.name)}</strong></td>
+                <td>📞 ${escapeHTML(farmer.phone)}<br>✉️ <small style="color:#2e7d32; font-weight:bold;">${escapeHTML(farmer.email || 'Sin correo')}</small></td>
+                <td class="col-tip"><div class="tip-text">"${escapeHTML(farmer.tip)}"</div></td>
+                <td class="col-rating"></td>
+                <td class="actions"></td>
+            `;
+
+            tr.querySelector('.col-rating').appendChild(ratingContainer);
+            const actionsTd = tr.querySelector('.actions');
+            
+            const btnEdit = document.createElement('button');
+            btnEdit.className = 'btn-warning';
+            btnEdit.textContent = 'Editar';
+            
+            const isOwner = farmer.authorId === currentUser.uid;
+            if (!isOwner && !isCurrentAdmin) {
+                btnEdit.setAttribute('disabled', 'true');
+                btnEdit.setAttribute('title', 'Solo el autor original puede modificar este registro.');
+                btnEdit.style.opacity = "0.4";
+            } else {
+                btnEdit.onclick = () => editFarmer(farmer.idFs);
+            }
+
+            const btnDel = document.createElement('button');
+            btnDel.className = 'btn-danger';
+            btnDel.textContent = 'Eliminar';
+            if (!isCurrentAdmin) {
+                btnDel.setAttribute('disabled', 'true');
+                btnDel.setAttribute('title', 'Acción restringida a Administradores.');
+            } else {
+                btnDel.onclick = () => deleteFarmer(farmer.idFs);
+            }
+
+            actionsTd.appendChild(btnEdit);
+            actionsTd.appendChild(document.createTextNode(' '));
+            actionsTd.appendChild(btnDel);
+            tbody.appendChild(tr);
+        });
+    }
+
+    // PERMISOS ADICIONALES DE ADMINISTRACIÓN LOCAL
+    function addAdminEmail() {
+        const newEmail = document.getElementById('new-admin-email').value.trim().toLowerCase();
+        if (!newEmail) return;
+        if (authorizedEmails.includes(newEmail)) return;
+
+        authorizedEmails.push(newEmail);
+        localStorage.setItem('admin_emails_list', JSON.stringify(authorizedEmails));
+        document.getElementById('new-admin-email').value = "";
+        renderAdminEmailsList();
+        alert("Asignado exitosamente.");
+    }
+
+    function removeAdminEmail(email) {
+        if (email === ROOT_ADMIN || email === currentUser.email) return;
+        if (confirm(`¿Revocar accesos a ${email}?`)) {
+            authorizedEmails = authorizedEmails.filter(e => e !== email);
+            localStorage.setItem('admin_emails_list', JSON.stringify(authorizedEmails));
+            renderAdminEmailsList();
+        }
+    }
+
+    function renderAdminEmailsList() {
+        const container = document.getElementById('admin-emails-list');
+        container.innerHTML = "";
+        authorizedEmails.forEach(email => {
+            const badge = document.createElement('span');
+            badge.className = 'admin-email-badge';
+            badge.innerHTML = `${escapeHTML(email)}`;
+            if (email !== ROOT_ADMIN) {
+                const btnDel = document.createElement('button');
+                btnDel.textContent = '✕';
+                btnDel.onclick = () => removeAdminEmail(email);
+                badge.appendChild(btnDel);
+            }
+            container.appendChild(badge);
+        });
+    }
+
+    function calculateRatingStats(farmer) {
+        let ratingsArr = [];
+        if (farmer.ratings && Array.isArray(farmer.ratings)) {
+            ratingsArr = farmer.ratings.map(v => typeof v === 'object' ? v.score : v);
+        }
+        if (ratingsArr.length === 0) return { average: 0, count: 0 };
+        const sum = ratingsArr.reduce((acc, curr) => acc + curr, 0);
+        return { average: parseFloat((sum / ratingsArr.length).toFixed(1)), count: ratingsArr.length };
+    }
+
+    function editFarmer(idFs) {
+        const farmer = dbGlobalCache.find(f => f.idFs === idFs);
+        if (!farmer) return;
+        document.getElementById('farmer-id').value = farmer.idFs;
+        document.getElementById('name').value = farmer.name;
+        document.getElementById('phone').value = farmer.phone;
+        document.getElementById('tip').value = farmer.tip;
+        formTitle.textContent = "✏️ Editar Tip";
+        btnSubmit.textContent = "Actualizar Cambios";
+        btnCancel.style.display = "inline-block";
+    }
+
+    async function deleteFarmer(idFs) {
+        if (!isCurrentAdmin) return;
+        if (confirm("¿Mover este consejo a la papelera común?")) {
+            const target = dbGlobalCache.find(f => f.idFs === idFs);
+            if (target) {
+                await addDoc(trashCollection, { ...target, deletedAt: new Date().toLocaleString() });
+                await deleteDoc(doc(dbFs, "farmers", idFs));
+                if(document.getElementById('farmer-id').value === idFs) resetForm();
+            }
+        }
+    }
+
+    async function clearHistoryPermanently() {
+        if (!isCurrentAdmin || trashGlobalCache.length === 0) return;
+        if (confirm("🚨 ¿Eliminar definitivamente el historial de la papelera?")) {
+            const q = query(collection(dbFs, "trash"));
+            const querySnapshot = await getDocs(q);
+            const batch = writeBatch(dbFs);
+            querySnapshot.forEach((doc) => batch.delete(doc.ref));
+            await batch.commit();
+        }
+    }
+
+    function renderHistory() {
+        const historyLog = document.getElementById('history-log');
+        historyLog.innerHTML = '';
+        if (trashGlobalCache.length === 0) {
+            historyLog.innerHTML = `<div style="color:#888; text-align:center; padding: 20px 0;">La papelera está vacía.</div>`;
+            return;
+        }
+        trashGlobalCache.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerHTML = `
+                <span class="timestamp">[Eliminado: ${item.deletedAt || 'Indefinido'}]</span><br>
+                <strong>Agricultor:</strong> ${escapeHTML(item.name)}<br>
+                <strong>Tip:</strong> <span style="color:#555;">"${escapeHTML(item.tip)}"</span>
+            `;
+            historyLog.appendChild(div);
+        });
+    }
+
+    // Limpia el formulario manteniendo la estructura limpia
+    function resetForm() {
+        form.reset();
+        document.getElementById('farmer-id').value = "";
+        formTitle.textContent = "Registrar Nuevo Tip";
+        btnSubmit.textContent = "Guardar Tip";
+        btnCancel.style.display = "none";
+    }
+
+    function limpiarCamposAcceso() {
+        document.getElementById('gate-email').value = "";
+        document.getElementById('gate-password').value = "";
+    }
+
+    function traducirErrorAuth(code) {
+        switch (code) {
+            case 'auth/invalid-credential': return "Credenciales incorrectas o usuario no registrado.";
+            case 'auth/email-already-in-use': return "El correo ya está registrado por otro agricultor.";
+            case 'auth/weak-password': return "La contraseña debe tener mínimo 6 caracteres.";
+            case 'auth/invalid-email': return "El formato del correo electrónico es inválido.";
+            default: return "Ocurrió un inconveniente, reintenta.";
+        }
+    }
+
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+    }
+
+    // BINDINGS DE BOTONES GENERALES
+    document.getElementById('btn-gate-login').onclick = ejecutarLogin;
+    document.getElementById('btn-gate-register').onclick = ejecutarRegistro;
+    document.getElementById('btn-logout').onclick = ejecutarLogout;
+    document.getElementById('btn-add-admin').onclick = addAdminEmail;
+    document.getElementById('btn-empty-trash').onclick = clearHistoryPermanently;
+    document.getElementById('btn-cancel').onclick = resetForm;
+    searchInput.oninput = renderAll;
+
+    const modal = document.getElementById('history-modal');
+    document.getElementById('btn-open-trash').onclick = () => modal.style.display = 'flex';
+    document.getElementById('btn-close-trash-x').onclick = () => modal.style.display = 'none';
+    window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+</script>
+</body>
+</html>
