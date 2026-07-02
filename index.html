@@ -14,7 +14,6 @@
             --light: #f1f8e9;
             --dark: #37474f;
             --admin-color: #512da8;
-            --google-blue: #4285F4;
         }
 
         body {
@@ -133,8 +132,6 @@
         button.btn-secondary:hover { background-color: #607d8b; }
         button.btn-admin { background-color: var(--admin-color); }
         button.btn-admin:hover { background-color: #311b92; }
-        button.btn-google { background-color: var(--google-blue); font-weight: bold; }
-        button.btn-google:hover { background-color: #357ae8; }
         
         .btn-history { background-color: #37474f; font-weight: bold; }
         .btn-history:hover { background-color: #212121; }
@@ -290,7 +287,6 @@
         }
         .modal-close:hover { background: #e0e0e0; }
 
-        /* Arreglo estructural de la cabecera del modal para evitar colisiones */
         .modal-header-flex {
             display: flex;
             justify-content: space-between;
@@ -334,13 +330,6 @@
     <p style="color: #666; font-size: 14px; margin-top: 0; margin-bottom: 25px;">Ingresa a tu cuenta para ver e interactuar con el panel agrícola.</p>
     
     <div class="card" style="text-align: left;">
-        <!-- Botón de Google integrado arriba -->
-        <button id="btn-gate-google" class="btn-google" style="width: 100%; padding: 12px; margin-bottom: 18px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-            🌐 Continuar con Google
-        </button>
-
-        <div style="text-align: center; color: #888; font-size: 12px; margin-bottom: 15px;">— O USA TU CORREO —</div>
-
         <div class="form-group">
             <label for="gate-email">Correo Electrónico:</label>
             <input type="email" id="gate-email" placeholder="ejemplo@correo.com">
@@ -476,7 +465,7 @@
         getFirestore, collection, addDoc, updateDoc, doc, deleteDoc, onSnapshot, arrayUnion, writeBatch, query, getDocs
     } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
     import { 
-        getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup
+        getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -492,7 +481,6 @@
     const app = initializeApp(firebaseConfig);
     const dbFs = getFirestore(app);
     const auth = getAuth(app);
-    const googleProvider = new GoogleAuthProvider();
 
     const farmersCollection = collection(dbFs, "farmers");
     const trashCollection = collection(dbFs, "trash");
@@ -546,15 +534,6 @@
             limpiarCamposAcceso();
         }
     });
-
-    // LOGIN CON GOOGLE
-    async function ejecutarLoginGoogle() {
-        try {
-            await signInWithPopup(auth, googleProvider);
-        } catch (error) {
-            alert("Error al autenticar con Google: " + error.message);
-        }
-    }
 
     async function ejecutarRegistro() {
         const email = document.getElementById('gate-email').value.trim();
@@ -882,7 +861,6 @@
     }
 
     // ASIGNACIÓN DE BOTONES Y MODALES
-    document.getElementById('btn-gate-google').onclick = ejecutarLoginGoogle;
     document.getElementById('btn-gate-login').onclick = ejecutarLogin;
     document.getElementById('btn-gate-register').onclick = ejecutarRegistro;
     document.getElementById('btn-logout').onclick = ejecutarLogout;
