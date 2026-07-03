@@ -133,6 +133,24 @@
         button.btn-admin { background-color: var(--admin-color); }
         button.btn-admin:hover { background-color: #311b92; }
         
+        /* BOTÓN OFICIAL DE GOOGLE */
+        button.btn-google { 
+            background-color: #ffffff; 
+            color: #1f1f1f;
+            font-weight: 500; 
+            border: 1px solid #747775;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            font-family: 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        button.btn-google:hover { 
+            background-color: #f8faf9; 
+            border-color: #747775;
+        }
+        button.btn-google svg {
+            width: 18px;
+            height: 18px;
+        }
+        
         .btn-history { background-color: #37474f; font-weight: bold; }
         .btn-history:hover { background-color: #212121; }
 
@@ -323,13 +341,24 @@
 </head>
 <body>
 
-<!-- PANTALLA 1: PORTAL DE INICIO DE SESIÓN -->
 <div id="gateway-screen" class="gateway-container">
     <div class="gateway-logo">🌱</div>
-    <h2 style="color: var(--primary-dark); margin-bottom: 5px;">Agrocultura Unida</h2>
+    <h2 style="color: var(--primary-dark); margin-bottom: 5px;">Agricultura Unida</h2>
     <p style="color: #666; font-size: 14px; margin-top: 0; margin-bottom: 25px;">Ingresa a tu cuenta para ver e interactuar con el panel agrícola.</p>
     
     <div class="card" style="text-align: left;">
+        <button id="btn-gate-google" class="btn-google" style="width: 100%; padding: 12px; margin-bottom: 18px; display: flex; align-items: center; justify-content: center; gap: 12px; border-radius: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.866-3.577-7.866-8s3.536-8 7.866-8c2.46 0 4.105 1.025 5.047 1.926l3.227-3.11C18.422 1.21 15.604 0 12.24 0 5.58 0 0 5.37 0 12s5.58 12 12.24 12c6.96 0 11.57-4.89 11.57-11.79 0-.795-.085-1.4-.195-1.925H12.24z"/>
+                <path fill="#4285F4" d="M23.615 10.285H12.24V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604V24c6.96 0 11.57-4.89 11.57-11.79 0-.795-.085-1.4-.195-1.925z"/>
+                <path fill="#FBBC05" d="M4.374 4.89A11.948 11.948 0 0 0 0 12a11.956 11.956 0 0 0 4.374 7.11l3.32-2.583c-.885-.6-2.072-1.944-2.072-4.527 0-2.583 1.187-3.927 2.072-4.528L4.374 4.89z"/>
+                <path fill="#34A853" d="M12.24 4.8c2.46 0 4.105 1.025 5.047 1.926l3.227-3.11C18.422 1.21 15.604 0 12.24 0c-4.717 0-8.773 2.72-10.74 6.69l3.32 2.583c.966-2.61 3.447-4.473 7.42-4.473z"/>
+            </svg>
+            Acceder con Google
+        </button>
+
+        <div style="text-align: center; color: #888; font-size: 11px; margin-bottom: 15px; font-weight: bold; letter-spacing: 0.5px;">O INGRESA MANUALMENTE</div>
+
         <div class="form-group">
             <label for="gate-email">Correo Electrónico:</label>
             <input type="email" id="gate-email" placeholder="ejemplo@correo.com">
@@ -346,7 +375,6 @@
     </div>
 </div>
 
-<!-- PANTALLA 2: APLICACIÓN PRINCIPAL -->
 <div id="app-screen" class="container" style="display: none;">
     
     <div class="header-area">
@@ -366,7 +394,6 @@
         </div>
     </div>
 
-    <!-- Buscador e interruptor de creación -->
     <div class="card search-box">
         <div style="flex: 1; min-width: 280px;">
             <label for="search" style="display:inline-block; margin-bottom: 5px;">🔍 Buscador Inteligente:</label>
@@ -375,7 +402,6 @@
         <button id="btn-open-form-modal" style="font-weight:bold; height: 42px; margin-top: 20px;">➕ Compartir un Nuevo Tip</button>
     </div>
 
-    <!-- Tabla base -->
     <div class="card">
         <h2 style="border:none; margin-top:0; font-size: 18px;">📋 Base General de Tips</h2>
         <div class="table-responsive">
@@ -396,7 +422,6 @@
         </div>
     </div>
 
-    <!-- GESTIÓN DE ACCESOS ADMINISTRATIVOS -->
     <div id="admin-access-card" class="card" style="display: none; border-top: 4px solid var(--admin-color); max-width: 400px;">
         <h3 style="margin-top:0; color: var(--admin-color);">🔑 Dar Acceso Administrativo</h3>
         <p style="font-size: 12px; color: #555;">Los correos listados aquí podrán vaciar la papelera.</p>
@@ -408,7 +433,6 @@
     </div>
 </div>
 
-<!-- MODAL: CREAR Y EDICIÓN DE TIPS -->
 <div class="modal-overlay" id="form-modal">
     <div class="modal-box">
         <div class="modal-header-flex">
@@ -441,7 +465,6 @@
     </div>
 </div>
 
-<!-- MODAL: PAPELERA DE RESPALDOS -->
 <div class="modal-overlay" id="history-modal">
     <div class="modal-box">
         <div class="modal-header-flex">
@@ -458,14 +481,13 @@
     </div>
 </div>
 
-<!-- LÓGICA DE FIREBASE CON AUTENTICACIÓN -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
     import { 
         getFirestore, collection, addDoc, updateDoc, doc, deleteDoc, onSnapshot, arrayUnion, writeBatch, query, getDocs
     } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
     import { 
-        getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged
+        getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup
     } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -481,6 +503,7 @@
     const app = initializeApp(firebaseConfig);
     const dbFs = getFirestore(app);
     const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
 
     const farmersCollection = collection(dbFs, "farmers");
     const trashCollection = collection(dbFs, "trash");
@@ -534,6 +557,15 @@
             limpiarCamposAcceso();
         }
     });
+
+    // LOGIN CON GOOGLE
+    async function ejecutarLoginGoogle() {
+        try {
+            await signInWithPopup(auth, googleProvider);
+        } catch (error) {
+            alert("Error al autenticar con Google: " + error.message);
+        }
+    }
 
     async function ejecutarRegistro() {
         const email = document.getElementById('gate-email').value.trim();
@@ -861,6 +893,7 @@
     }
 
     // ASIGNACIÓN DE BOTONES Y MODALES
+    document.getElementById('btn-gate-google').onclick = ejecutarLoginGoogle;
     document.getElementById('btn-gate-login').onclick = ejecutarLogin;
     document.getElementById('btn-gate-register').onclick = ejecutarRegistro;
     document.getElementById('btn-logout').onclick = ejecutarLogout;
